@@ -19,3 +19,5 @@ The algorithm is more suited for real-life videos an not quite for cartoons, nev
 ##proto2
 
 __What:__ Use the Lukas-Kanade algorithm with a defined pattern of points and record their motion and see what happens.  Test using JSFeat's Lukas-Kanade Optical Flow Algorithm &swh.
+
+__Then:__ 

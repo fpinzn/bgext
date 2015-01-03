@@ -33,6 +33,7 @@ $(window).load(function() {
         // lets do some fun
         var video = document.getElementById('video');
         var canvas = document.getElementById('canvas');
+        var d3vertices = [];
         try {
             var attempts = 0;
             var readyListener = function(event) {
@@ -171,6 +172,7 @@ $(window).load(function() {
         window.add_point=add_point;
         function prune_oflow_points(ctx) {
             var j=0, x, z;
+            vertices = [];
             for(var i=0; i < point_count; ++i) {
                 x = j<<1;
                 z = i<<1;
@@ -195,6 +197,7 @@ $(window).load(function() {
                 }
 
                 draw_circle(ctx, curr_xy[x], curr_xy[x+1]);
+                vertices.push[curr_xy[x], curr_xy[x+1]];
                 ++j;
             }
             point_count = j;
