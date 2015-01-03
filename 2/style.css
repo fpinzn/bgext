@@ -1,0 +1,16 @@
+*{
+    box-sizing: border-box;
+}
+#video{
+
+    float: left;
+    display: none;
+}
+#canvas-container{
+    width: 720px;
+    float: left;
+}
+
+#canvas{
+    width: 100%;
+}
