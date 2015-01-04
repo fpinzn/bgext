@@ -20,4 +20,12 @@ The algorithm is more suited for real-life videos an not quite for cartoons, nev
 
 __What:__ Use the Lukas-Kanade algorithm with a defined pattern of points and record their motion and see what happens.  Test using JSFeat's Lukas-Kanade Optical Flow Algorithm &swh.
 
-__Then:__
+__Then:__ Even when the algorithm is supposedly not performant in large solid areas, the fact that the experiment replaces the non followed points with new points placed randomly displays potential to identify the elements that move independently from others.
+
+##proto3
+
+__What:__ draw a voronoi diagram using the dataset from before &swh.
+
+__Then:__ The voronoi diagram on top doesn't seem like an usable partition. Nevertheless it makes me think about the usage of the Lukas-Kanade Algorithm using non rectangular regions. The slider to change the number of points doesn't seem to work and the code is a horrible frankenstein I don't want to fix. Next experiment starts from scratch.
+
+##proto4

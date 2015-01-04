@@ -1,0 +1,40 @@
+{
+  "name": "aassert",
+  "main": "aassert.js",
+  "version": "0.1.1",
+  "homepage": "https://github.com/fpinzn/aassert",
+  "authors": [
+    "Francisco Pinzon <hello@pacho.me>"
+  ],
+  "description": "Type assertion library for js. Both primitive and custom types supported.",
+  "keywords": [
+    "type",
+    "types",
+    "assertion",
+    "defensive",
+    "programming"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "README.md",
+    "specs.js",
+    "LICENSE",
+    "karma.conf.js",
+    "dummy.json"
+  ],
+  "_release": "0.1.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.1.1",
+    "commit": "93687e1510f5844fbda07eb3a1d001856028dff3"
+  },
+  "_source": "git://github.com/fpinzn/aassert.git",
+  "_target": "~0.1.1",
+  "_originalSource": "aassert",
+  "_direct": true
+}

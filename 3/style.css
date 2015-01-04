@@ -1,6 +1,16 @@
 *{
     box-sizing: border-box;
 }
+body{
+    margin: 0;
+}
+svg{
+    position: absolute;
+    opacity: 0.3;
+    top: 0;
+    left:0;
+    width:720;
+}
 #video{
 
     float: left;
@@ -9,8 +19,26 @@
 #canvas-container{
     width: 720px;
     float: left;
+    margin: 0;
 }
 
 #canvas{
-    width: 100%;
+    width: 720px;
+
 }
+
+path {
+  stroke: #fff;
+}
+
+path:first-child {
+  fill: yellow !important;
+}
+
+circle {
+  fill: #000;
+  pointer-events: none;
+}
+
+
+.q { stroke: red; fill: transparent; }

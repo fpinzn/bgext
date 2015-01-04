@@ -34,10 +34,11 @@ $(window).load(function() {
         var video = document.getElementById('video');
         var canvas = document.getElementById('canvas');
         var d3vertices = [];
+        window.vert = d3vertices;
         try {
             var attempts = 0;
             var readyListener = function(event) {
-				console.log("readyListener");
+				//console.log("readyListener");
 				findVideoSize();
 				video.play();
 
@@ -70,7 +71,7 @@ $(window).load(function() {
             $('#no_rtc').show();
         }
 
-
+        var voronoi, svg, path;
         var gui,options,ctx,canvasWidth,canvasHeight;
         var curr_img_pyr, prev_img_pyr, point_count, point_status, prev_xy, curr_xy;
 
@@ -79,14 +80,47 @@ $(window).load(function() {
             this.max_iterations = 30;
             this.epsilon = 0.2;
             this.min_eigen = 0;
-            this.number_points = 25;
+            this.number_points = 10;
+        }
+
+        function set_up_voronoi(width, height){
+            AA.n(width).n(height);
+            console.log("setup voronoi", width, height);
+            voronoi = d3.geom.voronoi()
+                .clipExtent([[0, 0], [width, height]]);
+            svg = d3.select("body").append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                //.on("mousemove", function() { vertices[0] = d3.mouse(this); redraw_voronoi(); });
+
+            path = svg.append("g").selectAll("path");
+
+        }
+
+        function redraw_voronoi() {
+            ////console.log("redraw voronoi");
+            d3vertices = _.unique(d3vertices);
+            //console.log("redraw voronoi d3vertices", voronoi(d3vertices));
+            path = path
+              .data(voronoi(d3vertices), polygon);
+
+            path.exit().remove();
+
+            path.enter().append("path")
+              .attr("class", "q")
+              .attr("d", polygon);
+
+            path.order();
+        }
+
+        function polygon(d) {
+            return "M" + d.join("L") + "Z";
         }
 
         function demo_app(videoWidth, videoHeight) {
-            canvasWidth  = canvas.width;
-            canvasHeight = canvas.height;
+            canvasWidth  = canvas.width = 720;
+            canvasHeight = canvas.height = 562;
             ctx = canvas.getContext('2d');
-
 
             curr_img_pyr = new jsfeat.pyramid_t(3);
             prev_img_pyr = new jsfeat.pyramid_t(3);
@@ -98,6 +132,8 @@ $(window).load(function() {
             prev_xy = new Float32Array(100*2);
             curr_xy = new Float32Array(100*2);
 
+            d3vertices = [];
+
             options = new demo_opt();
             gui = new dat.GUI();
 
@@ -105,12 +141,17 @@ $(window).load(function() {
             gui.add(options, 'max_iterations', 3, 100).step(1);
             gui.add(options, 'epsilon', 0.001, 0.7).step(0.0025);
             gui.add(options, 'min_eigen', 0, 0.01).step(0.0025);
-            gui.add(options, 'number_points', 2, 100).step(1).onChange(create_field);
+            gui.add(options, 'number_points', 2, 100).step(1).onChange(function(){
+                d3vertices = [];
+                create_field();
+            });
+            set_up_voronoi(canvasWidth,canvasHeight);
             create_field();
         }
 
         function tick() {
             compatibility.requestAnimationFrame(tick);
+
             if (video.readyState === video.HAVE_ENOUGH_DATA) {
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -130,32 +171,35 @@ $(window).load(function() {
                 jsfeat.optical_flow_lk.track(prev_img_pyr, curr_img_pyr, prev_xy, curr_xy, point_count, options.win_size|0, options.max_iterations|0, point_status, options.epsilon, options.min_eigen);
 
                 prune_oflow_points(ctx);
-
+                redraw_voronoi();
             }
         }
 
 
         function draw_circle(ctx, x, y) {
-            //console.log(x,y);
+            ////console.log(x,y);
             ctx.beginPath();
             ctx.arc(x, y, 2, 0, Math.PI*2, true);
             ctx.fill();
         }
 
         function create_field(){
-            //console.log("create_field", options.number_points);
+            ////console.log("create_field", options.number_points);
 
             point_status = new Uint8Array(100);
             prev_xy = new Float32Array(100*2);
             curr_xy = new Float32Array(100*2);
 
-
             var xFactor = canvasWidth*0.9/options.number_points;
             var yFactor = canvasHeight*0.9/options.number_points;
             var xOffset = canvasWidth*0.05;
             var yOffset = canvasHeight*0.05;
-            console.log("canvas", canvasWidth, canvasHeight);
+            //console.log("canvas", canvasWidth, canvasHeight);
+
+            d3vertices = [];
+
             point_count = 0;
+
             for(var i=0; i<options.number_points; i++){
                 for(var j=0; j<options.number_points; j++){
                     add_point(i*xFactor+xOffset,j*yFactor+yOffset);
@@ -167,22 +211,17 @@ $(window).load(function() {
             curr_xy[point_count<<1] = x;
             curr_xy[(point_count<<1)+1] = y;
             point_count++;
-            console.log("addPoint",point_count, x,y );
+            console.log("add", x,y, point_count);
+            d3vertices.push([x, y]);
+            //console.log("d3Vertices",d3vertices );
         }
-        window.add_point=add_point;
+
         function prune_oflow_points(ctx) {
-            var j=0, x, z;
-            d3vertices = [];
             for(var i=0; i < point_count; ++i) {
-                x = j<<1;
-                z = i<<1;
+                var x = i<<1;
+                //console.log("outsideif", i, x);
 
-                if(j < i) {
-                    curr_xy[x] = curr_xy[z];
-                    curr_xy[x+1] = curr_xy[z+1];
-                }
-
-                //console.log("draw_circle:", point_status[i] == 1, curr_xy[x], curr_xy[x+1]);
+                ////console.log("draw_circle:", point_status[i] == 1, curr_xy[x], curr_xy[x+1]);
                 if(point_status[i] == 1) {
                     ctx.fillStyle = "rgb(0,255,0)";
                     ctx.strokeStyle = "rgb(0,255,0)";
@@ -191,17 +230,16 @@ $(window).load(function() {
                     //TODO: Lost point
                     ctx.fillStyle = "rgb(255,0,0)";
                     ctx.strokeStyle = "rgb(255,0,0)";
+
                     curr_xy[x] = Math.random() *canvasWidth;
                     curr_xy[x+1] = Math.random() *canvasHeight;
-                    draw_circle(ctx, curr_xy[x], curr_xy[x+1]);
+
+                    console.log("d3vertices[i]",i, d3vertices[i]);
                 }
-
+                d3vertices[i] = [curr_xy[x], curr_xy[x+1]];
                 draw_circle(ctx, curr_xy[x], curr_xy[x+1]);
-                d3vertices.push[curr_xy[x], curr_xy[x+1]];
-                ++j;
             }
-            point_count = j;
-
+            window.vert = d3vertices;
         }
 
 
